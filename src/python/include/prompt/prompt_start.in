@@ -1,0 +1,5 @@
+**1. Background:**
+
+Our goal is to accurately parse email content into standardized table fields. The emails contain various regulatory compliance statements from vendors regarding their products. We need to extract specific information from these emails and convert it into a structured table format. This includes details such as vendor name, product information, compliance with regulations, and concentration of substances.
+
+**2. Examples:**

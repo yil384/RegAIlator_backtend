@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  xri-backend:
+    container_name: xri-backend-dev
+    command: yarn dev -L

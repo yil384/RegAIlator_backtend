@@ -1,0 +1,6 @@
+version: '3'
+
+services:
+  xri-backend:
+    container_name: xri-backend-prod
+    command: yarn start

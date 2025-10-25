@@ -1,0 +1,12 @@
+node_modules
+__pycache__
+attachments
+src/python/include/openai_key.in
+.test
+*.pyc
+*.pdf
+*.txt
+*.html
+*.xlsx
+*.csv
+out*

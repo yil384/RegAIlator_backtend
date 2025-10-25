@@ -1,0 +1,61 @@
+
+2.1.1. The 1st Original Email:
+
+Smurfit Westrock
+Address line 1, Address line 2
+Country, Post/zip-code
+Tel: +1 770-123-4567, Fax: +1 770-123-4567 Smurfit
+info@smurfitwestrock.com aa Westrock
+smurfitwestrock.com
+July 31, 2024
+Vertex
+Kevin Ryan
+Regarding Product: Printed Folding Cartons as Secondary Packaging for Vertex Products
+This is in response to your request for the following information for the packaging products listed above. Please
+be advised that, to assure consistent and accurate information, it is WestRock's policy to provide this type of
+information with a letter which provides for comments and qualifications to the responses. Please consider this
+letter as an important part of the response. We trust this will meet your needs.
+Mineral Oil - Conformity with Article 112 of AGEC Law:
+Mineral oils, namely "mineral oil saturated hydrocarbons" (MOSH - hydrocarbons formed of chains and rings)
+and “mineral oil aromatic hydrocarbons" (MOAH, complex mixtures mainly composed of alkylated mono- and
+polycyclic aromatic hydrocarbons), are not intentionally used or added as ingredients in the printing inks. For
+technical reasons, the use of raw materials containing mineral oils cannot be entirely excluded however a mineral
+oil content of 1% in the final ink is not exceeded. Westrock is continuing to work with suppliers to ensure ongoing
+compliance with the above regulation.
+This determination is based upon information available to WestRock as of the date written above, which may
+include component supplier disclosures, safety data sheets, technical data sheets, available and applicable test
+data, and/or general industry knowledge. In some cases, chemical compounds may be present in the Products
+in trace quantities due to factors such as the use of naturally occurring materials in, or the presence of residuals
+from, the manufacturing process. WestRock does not conduct testing for all the listed compounds.
+This letter applies to the Products as shipped and as of the date of shipment. This statement does not alter,
+amend, supersede or in any way affect any existing terms and conditions of sale of any transaction documents
+between the parties, including WestRock’s terms and conditions of sale and/or any contracts or contractual
+commitments between the parties. This letter supersedes all previous letters provided by WestRock to you for
+the Products and covers only Products shipped by WestRock within three (3) years after the date written above,
+unless revoked earlier.
+| trust this takes care of everything you need at this time. If we can do anything more, please feel free to contact
+us. Thank you.
+Sincerely,
+David Ribeiro, General Manager
+WestRock - Mebane
+cc: Sherry Fang, Maurice Long
+
+2.1.2. The 1st Standard Response:
+
+{
+    "data": [
+        {
+            "Date": "Jul-24",
+            "Supplier name": "Smurfit WestRock",
+            "Raw material name": "Printed Folding Cartons",
+            "Raw material part number": "",
+            "Regulation or substance name": "Mineral oil",
+            "Compliant conclusion\n(Compliant, not compliant, not applicable or unclear)": "Compliant",
+            "Compliant conclusion justification": "Mineral oil are not intentionally used or added as ingredients in the printing inks.",
+            "Disclosures of the substances": "Mineral oil",
+            "CAS number": "",
+            "Concentration (wt%)": "<=1%",
+            "Concentration (ppm)": ""
+        }
+    ]
+}
