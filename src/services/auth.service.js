@@ -29,7 +29,7 @@ const logout = async (refreshToken) => {
   if (!refreshTokenDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
   }
-  await refreshTokenDoc.remove();
+  await Token.deleteOne({ _id: refreshTokenDoc._id });
 };
 
 /**
@@ -42,9 +42,9 @@ const refreshAuth = async (refreshToken) => {
     const refreshTokenDoc = await tokenService.verifyToken(refreshToken, tokenTypes.REFRESH);
     const user = await userService.getUserById(refreshTokenDoc.user);
     if (!user) {
-      throw new Error();
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
-    await refreshTokenDoc.remove();
+    await Token.deleteOne({ _id: refreshTokenDoc._id });
     return tokenService.generateAuthTokens(user);
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
@@ -62,7 +62,7 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
     const resetPasswordTokenDoc = await tokenService.verifyToken(resetPasswordToken, tokenTypes.RESET_PASSWORD);
     const user = await userService.getUserById(resetPasswordTokenDoc.user);
     if (!user) {
-      throw new Error();
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
     await userService.updateUserById(user.id, { password: newPassword });
     await Token.deleteMany({ user: user.id, type: tokenTypes.RESET_PASSWORD });
@@ -81,7 +81,7 @@ const verifyEmail = async (verifyEmailToken) => {
     const verifyEmailTokenDoc = await tokenService.verifyToken(verifyEmailToken, tokenTypes.VERIFY_EMAIL);
     const user = await userService.getUserById(verifyEmailTokenDoc.user);
     if (!user) {
-      throw new Error();
+      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
     await Token.deleteMany({ user: user.id, type: tokenTypes.VERIFY_EMAIL });
     await userService.updateUserById(user.id, { isEmailVerified: true });

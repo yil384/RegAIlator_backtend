@@ -4,7 +4,7 @@ const constants = require('../configs/constants');
 
 const { ObjectId } = mongoose.SchemaTypes;
 
-const videoSchema = mongoose.Schema(
+const documentSchema = mongoose.Schema(
   {
     title: { type: String, required: true },
     path: { type: String, required: true },
@@ -22,23 +22,23 @@ const videoSchema = mongoose.Schema(
 );
 
 // add plugin that converts mongoose to json
-videoSchema.plugin(toJSON);
-videoSchema.plugin(paginate);
+documentSchema.plugin(toJSON);
+documentSchema.plugin(paginate);
 
 /**
- * Check if groupName is taken
+ * Check if file path is taken
  * @param title
- * @param {ObjectId} [excludeVideoId] - The id of the user to be excluded
+ * @param {ObjectId} [excludeDocumentId] - The id of the user to be excluded
  * @returns {Promise<boolean>}
  */
-videoSchema.statics.isPathTaken = async function (path, excludeVideoId) {
-  const video = await this.findOne({ path, _id: { $ne: excludeVideoId } });
-  return !!video;
+documentSchema.statics.isPathTaken = async function (path, excludeDocumentId) {
+  const document = await this.findOne({ path, _id: { $ne: excludeDocumentId } });
+  return !!document;
 };
 
 /**
- * @typedef Video
+ * @typedef Document
  */
-const Video = mongoose.model('Video', videoSchema);
+const Document = mongoose.model('Document', documentSchema, 'videos');
 
-module.exports = Video;
+module.exports = Document;

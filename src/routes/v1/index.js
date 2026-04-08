@@ -2,9 +2,9 @@ const express = require('express');
 
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
-const videoGroupRoute = require('./videoGroup.route');
-const videoRoute = require('./video.route');
-const watchLogRoute = require('./watchLog.route');
+const documentGroupRoute = require('./documentGroup.route');
+const documentRoute = require('./document.route');
+const auditLogRoute = require('./auditLog.route');
 const errorLogRoute = require('./errorLog.route');
 
 const docsRoute = require('./docs.route');
@@ -22,20 +22,33 @@ const defaultRoutes = [
     route: userRoute,
   },
   {
-    path: '/video-groups',
-    route: videoGroupRoute,
+    path: '/document-groups',
+    route: documentGroupRoute,
   },
   {
-    path: '/videos',
-    route: videoRoute,
+    path: '/documents',
+    route: documentRoute,
   },
   {
-    path: '/watch-logs',
-    route: watchLogRoute,
+    path: '/audit-logs',
+    route: auditLogRoute,
   },
   {
     path: '/error-logs',
     route: errorLogRoute,
+  },
+  // Backwards-compatible aliases (old frontend still uses these paths)
+  {
+    path: '/video-groups',
+    route: documentGroupRoute,
+  },
+  {
+    path: '/videos',
+    route: documentRoute,
+  },
+  {
+    path: '/watch-logs',
+    route: auditLogRoute,
   },
 ];
 

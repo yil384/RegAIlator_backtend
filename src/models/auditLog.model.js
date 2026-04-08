@@ -3,10 +3,10 @@ const { toJSON, paginate } = require('./plugins');
 
 const { ObjectId } = mongoose.SchemaTypes;
 
-const WatchLogSchema = mongoose.Schema(
+const auditLogSchema = mongoose.Schema(
   {
     userId: { type: ObjectId, ref: 'User', required: true },
-    videoGroupId: { type: ObjectId, ref: 'VideoGroup', required: true },
+    videoGroupId: { type: ObjectId, ref: 'DocumentGroup', required: true },
     progressStatus: { type: Object, required: true },
     recordFileName: { type: String, required: true },
     recordFilePath: { type: String, required: true },
@@ -17,12 +17,12 @@ const WatchLogSchema = mongoose.Schema(
 );
 
 // add plugin that converts mongoose to json
-WatchLogSchema.plugin(toJSON);
-WatchLogSchema.plugin(paginate);
+auditLogSchema.plugin(toJSON);
+auditLogSchema.plugin(paginate);
 
 /**
- * @typedef WatchLog
+ * @typedef AuditLog
  */
-const WatchLog = mongoose.model('WatchLog', WatchLogSchema);
+const AuditLog = mongoose.model('AuditLog', auditLogSchema, 'watchlogs');
 
-module.exports = WatchLog;
+module.exports = AuditLog;

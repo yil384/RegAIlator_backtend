@@ -63,10 +63,13 @@ app.use(mongoSanitize());
 app.use(compression());
 
 // --- 5. CORS ---
-// Allow all origins (tighten in production via config if needed).
-// The preflight OPTIONS handler must also be registered for non-simple requests.
-app.use(cors());
-app.options('*', cors());
+// Restrict origins in production to the configured frontend URL.
+const corsOptions = {
+  origin: config.env === 'production' ? config.web_host : '*',
+  credentials: true,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // --- 6. Authentication ---
 // Initialize Passport but do NOT apply auth globally -- individual routes opt in

@@ -35,7 +35,7 @@
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const { User } = require('../models');
-const videoService = require('./video.service');
+const documentService = require('./document.service');
 const config = require('../configs/config');
 const fs = require('fs');
 const path = require('path');
@@ -275,7 +275,7 @@ const saveEmailReply = async (parsed, bodyBuffer) => {
     for (const att of emailAttachments) {
       const parsedData = {};
       for (const { supplier, user } of matchingSuppliers) {
-        await videoService.createVideo({
+        await documentService.createDocument({
           title: att.filename,
           path: att.content,
           addedBy: user._id,

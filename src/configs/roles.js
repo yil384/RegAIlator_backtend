@@ -10,20 +10,20 @@ const accessCategories = {
     manageUsers: 'manageUsers',
     all: ['getUsers', 'manageUsers'],
   },
-  videoGroup: {
-    getVideoGroups: 'getVideoGroups',
-    manageVideoGroups: 'manageVideoGroups',
-    all: ['getVideoGroups', 'manageVideoGroups'],
+  documentGroup: {
+    getDocumentGroups: 'getDocumentGroups',
+    manageDocumentGroups: 'manageDocumentGroups',
+    all: ['getDocumentGroups', 'manageDocumentGroups'],
   },
-  video: {
-    getVideo: 'getVideo',
-    manageVideo: 'manageVideo',
-    all: ['getVideo', 'manageVideo'],
+  document: {
+    getDocument: 'getDocument',
+    manageDocument: 'manageDocument',
+    all: ['getDocument', 'manageDocument'],
   },
-  watchLog: {
-    getWatchLog: 'getWatchLog',
-    manageWatchLog: 'manageWatchLog',
-    all: ['getWatchLog', 'manageWatchLog'],
+  auditLog: {
+    getAuditLog: 'getAuditLog',
+    manageAuditLog: 'manageAuditLog',
+    all: ['getAuditLog', 'manageAuditLog'],
   },
   errorLog: {
     getErrorLog: 'getErrorLog',
@@ -40,15 +40,15 @@ const accessCategories = {
 const allRoles = {
   [subUserRoles.admin]: [
     ...accessCategories.user.all,
-    ...accessCategories.videoGroup.all,
-    ...accessCategories.video.all,
-    ...accessCategories.watchLog.all,
+    ...accessCategories.documentGroup.all,
+    ...accessCategories.document.all,
+    ...accessCategories.auditLog.all,
     ...accessCategories.errorLog.all,
   ],
   [subUserRoles.user]: [
-    ...accessCategories.user.all, 
-    ...accessCategories.videoGroup.all, 
-    ...accessCategories.video.all
+    ...accessCategories.user.all,
+    ...accessCategories.documentGroup.all,
+    ...accessCategories.document.all,
   ],
   [subUserRoles.guest]: [],
 };

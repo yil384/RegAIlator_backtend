@@ -11,11 +11,12 @@ let server;
 // Create HTTP server bound to Express app
 const httpServer = http.createServer(app);
 
-// Initialize Socket.io with CORS support
+// Initialize Socket.io with CORS restricted to frontend origin
 const io = socketIo(httpServer, {
   cors: {
-    origin: '*',
+    origin: config.web_host || '*',
     methods: ['GET', 'POST'],
+    credentials: true,
   },
 });
 

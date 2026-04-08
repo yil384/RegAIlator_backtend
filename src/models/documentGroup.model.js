@@ -4,7 +4,7 @@ const constants = require('../configs/constants');
 
 const { ObjectId } = mongoose.SchemaTypes;
 
-const videoGroupSchema = mongoose.Schema(
+const documentGroupSchema = mongoose.Schema(
   {
     groupName: { type: String, required: true, trim: true },
     addedBy: { type: ObjectId, ref: 'User', required: true },
@@ -17,23 +17,23 @@ const videoGroupSchema = mongoose.Schema(
 );
 
 // add plugin that converts mongoose to json
-videoGroupSchema.plugin(toJSON);
-videoGroupSchema.plugin(paginate);
+documentGroupSchema.plugin(toJSON);
+documentGroupSchema.plugin(paginate);
 
 /**
  * Check if groupName is taken
  * @param {string} groupName
- * @param {ObjectId} [excludeVideoGroupId] - The id of the videoGroup to be excluded
+ * @param {ObjectId} [excludeDocumentGroupId] - The id of the documentGroup to be excluded
  * @returns {Promise<boolean>}
  */
-videoGroupSchema.statics.isGroupNameTaken = async function (groupName, excludeVideoGroupId) {
-  const videoGroup = await this.findOne({ groupName, _id: { $ne: excludeVideoGroupId } });
-  return !!videoGroup;
+documentGroupSchema.statics.isGroupNameTaken = async function (groupName, excludeDocumentGroupId) {
+  const documentGroup = await this.findOne({ groupName, _id: { $ne: excludeDocumentGroupId } });
+  return !!documentGroup;
 };
 
 /**
- * @typedef VideoGroup
+ * @typedef DocumentGroup
  */
-const VideoGroup = mongoose.model('VideoGroup', videoGroupSchema);
+const DocumentGroup = mongoose.model('DocumentGroup', documentGroupSchema, 'videogroups');
 
-module.exports = VideoGroup;
+module.exports = DocumentGroup;

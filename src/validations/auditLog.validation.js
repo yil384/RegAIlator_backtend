@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 
-const createWatchLog = {
+const createAuditLog = {
   body: Joi.object().keys({
     videoGroupId: Joi.custom(objectId),
     progressStatus: Joi.object(),
@@ -9,7 +9,7 @@ const createWatchLog = {
   }),
 };
 
-const getWatchLogs = {
+const getAuditLogs = {
   query: Joi.object().keys({
     userId: Joi.custom(objectId),
     videoGroupId: Joi.custom(objectId),
@@ -21,15 +21,15 @@ const getWatchLogs = {
   }),
 };
 
-const getWatchLog = {
+const getAuditLog = {
   params: Joi.object().keys({
-    watchLogId: Joi.string().custom(objectId),
+    auditLogId: Joi.string().custom(objectId),
   }),
 };
 
-const updateWatchLog = {
+const updateAuditLog = {
   params: Joi.object().keys({
-    watchLogId: Joi.required().custom(objectId),
+    auditLogId: Joi.required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
@@ -41,16 +41,16 @@ const updateWatchLog = {
     .min(1),
 };
 
-const deleteWatchLog = {
+const deleteAuditLog = {
   params: Joi.object().keys({
-    watchLogId: Joi.string().custom(objectId),
+    auditLogId: Joi.string().custom(objectId),
   }),
 };
 
 module.exports = {
-  createWatchLog,
-  getWatchLogs,
-  getWatchLog,
-  updateWatchLog,
-  deleteWatchLog,
+  createAuditLog,
+  getAuditLogs,
+  getAuditLog,
+  updateAuditLog,
+  deleteAuditLog,
 };

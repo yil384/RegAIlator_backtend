@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const removeVideoFile = async (filepath) => {
+const removeFile = async (filepath) => {
   try {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.unlinkSync(filepath);
@@ -11,4 +11,4 @@ const removeVideoFile = async (filepath) => {
   }
 };
 
-module.exports.removeVideoFile = removeVideoFile;
+module.exports = { removeFile, removeVideoFile: removeFile };

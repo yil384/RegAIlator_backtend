@@ -2,7 +2,7 @@ const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 const constants = require('../configs/constants');
 
-const createVideoGroup = {
+const createDocumentGroup = {
   body: Joi.object().keys({
     groupName: Joi.string().required(),
     addedBy: Joi.custom(objectId),
@@ -10,7 +10,7 @@ const createVideoGroup = {
   }),
 };
 
-const getVideoGroups = {
+const getDocumentGroups = {
   query: Joi.object().keys({
     groupName: Joi.string(),
     addedBy: Joi.string(),
@@ -18,13 +18,13 @@ const getVideoGroups = {
   }),
 };
 
-const getVideoGroup = {
+const getDocumentGroup = {
   params: Joi.object().keys({
     groupId: Joi.string().custom(objectId),
   }),
 };
 
-const updateVideoGroup = {
+const updateDocumentGroup = {
   params: Joi.object().keys({
     groupId: Joi.required().custom(objectId),
   }),
@@ -36,16 +36,16 @@ const updateVideoGroup = {
     .min(1),
 };
 
-const deleteVideoGroup = {
+const deleteDocumentGroup = {
   params: Joi.object().keys({
     groupId: Joi.string().custom(objectId),
   }),
 };
 
 module.exports = {
-  createVideoGroup,
-  getVideoGroups,
-  getVideoGroup,
-  updateVideoGroup,
-  deleteVideoGroup,
+  createDocumentGroup,
+  getDocumentGroups,
+  getDocumentGroup,
+  updateDocumentGroup,
+  deleteDocumentGroup,
 };

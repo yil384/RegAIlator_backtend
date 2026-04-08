@@ -9,4 +9,7 @@ src/python/include/openai_key.in
 *.html
 *.xlsx
 *.csv
-out*
+out*.env
+.DS_Store
+recipients.log
+test_imap.js

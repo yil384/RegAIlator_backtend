@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const renameVideoFile = async (oldPath, newPath) => {
+const renameFile = async (oldPath, newPath) => {
   try {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.renameSync(oldPath, newPath);
@@ -11,4 +11,4 @@ const renameVideoFile = async (oldPath, newPath) => {
   }
 };
 
-module.exports.renameVideoFile = renameVideoFile;
+module.exports = { renameFile, renameVideoFile: renameFile };

@@ -2,7 +2,7 @@ const Joi = require('joi');
 const { objectId } = require('./custom.validation');
 const constants = require('../configs/constants');
 
-const createVideo = {
+const createDocument = {
   body: Joi.object().keys({
     title: Joi.string().required(),
     path: Joi.string().required(),
@@ -12,7 +12,7 @@ const createVideo = {
   }),
 };
 
-const getVideos = {
+const getDocuments = {
   query: Joi.object().keys({
     limit: Joi.number(),
     title: Joi.string(),
@@ -25,15 +25,15 @@ const getVideos = {
   }),
 };
 
-const getVideo = {
+const getDocument = {
   params: Joi.object().keys({
-    videoId: Joi.string().custom(objectId),
+    documentId: Joi.string().custom(objectId),
   }),
 };
 
-const updateVideo = {
+const updateDocument = {
   params: Joi.object().keys({
-    videoId: Joi.required().custom(objectId),
+    documentId: Joi.required().custom(objectId),
   }),
   body: Joi.object()
     .keys({
@@ -46,16 +46,16 @@ const updateVideo = {
     .min(1),
 };
 
-const deleteVideo = {
+const deleteDocument = {
   params: Joi.object().keys({
-    videoId: Joi.string().custom(objectId),
+    documentId: Joi.string().custom(objectId),
   }),
 };
 
 module.exports = {
-  createVideo,
-  getVideos,
-  getVideo,
-  updateVideo,
-  deleteVideo,
+  createDocument,
+  getDocuments,
+  getDocument,
+  updateDocument,
+  deleteDocument,
 };

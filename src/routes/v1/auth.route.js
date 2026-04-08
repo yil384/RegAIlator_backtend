@@ -3,7 +3,7 @@ const validate = require('../../middlewares/validate');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
 const auth = require('../../middlewares/auth');
-const videoController = require('../../controllers/video.controller');
+const documentController = require('../../controllers/document.controller');
 
 const router = express.Router();
 
@@ -26,9 +26,9 @@ router.put('/my-suppliers', auth(), authController.updateSuppliers);
 router.delete('/my-suppliers', auth(), authController.deleteSuppliers);
 // Survey
 router.get('/my-surveys', auth(), authController.getMySurveys);
-router.post('/my-surveys', auth(), videoController.uploadVideos, authController.createSurvey);
-router.put('/my-surveys/:surveyId', auth(), videoController.uploadVideos, authController.updateSurvey);
-router.post('/my-surveys/:surveyId/attachments', auth(), videoController.uploadVideos, authController.updateSurveyAttachments);
+router.post('/my-surveys', auth(), documentController.uploadFiles, authController.createSurvey);
+router.put('/my-surveys/:surveyId', auth(), documentController.uploadFiles, authController.updateSurvey);
+router.post('/my-surveys/:surveyId/attachments', auth(), documentController.uploadFiles, authController.updateSurveyAttachments);
 router.delete('/my-surveys', auth(), authController.deleteSurveys);
 // Bill of Materials
 router.get('/my-bill-of-materials', auth(), authController.getMyBillOfMaterials);
