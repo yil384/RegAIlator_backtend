@@ -1,3 +1,22 @@
+/**
+ * @module controllers/video
+ * @description Handles file uploads, CRUD operations for "Video" records, and
+ * PDF parsing via a Python script.
+ *
+ * Naming note: The "Video" model is a general-purpose file record -- it stores
+ * any uploaded document (PDF, XLSX, images, etc.), not just video files. The
+ * name is historical. Each record tracks the file path, the user who uploaded
+ * it, an optional parsed-data JSON blob, and an optional supplier association.
+ *
+ * Upload flow: files are saved to `uploads/` with UUID filenames (to prevent
+ * collisions and path-traversal issues), then a Video document is created
+ * pointing to `/api/uploads/<uuid>.pdf`.
+ *
+ * Parse flow: the `parseVideos` endpoint takes an array of Video IDs, checks
+ * if parsed data already exists (cached in `video.json`), and for PDFs without
+ * cached data, invokes a Python script (`parse_files.py`) to extract structured
+ * content.
+ */
 const httpStatus = require('http-status');
 const multer = require('multer');
 const pick = require('../utils/pick');
@@ -12,6 +31,11 @@ const { v4: uuidv4 } = require('uuid'); // Used to generate unique filenames
 const { spawn } = require('child_process');
 const mime = require('mime'); // Import mime module
 
+/**
+ * Multer disk storage configuration.
+ * Files are written to the `uploads/` directory with UUID-based filenames
+ * to avoid name collisions and directory traversal attacks.
+ */
 const fileStorage = multer.diskStorage({
   destination(req, file, callback) {
     const uploadDir = 'uploads/';
@@ -26,8 +50,14 @@ const fileStorage = multer.diskStorage({
   },
 });
 
+/** Multer middleware accepting up to 100 files under the 'file' field name. */
 const uploadVideos = multer({ storage: fileStorage }).array('file', 100);
 
+/**
+ * Create a Video record directly from a JSON body (no file upload).
+ * Automatically sets `addedBy` to the authenticated user.
+ * @route POST /videos
+ */
 const createVideo = catchAsync(async (req, res) => {
   const reqBody = {
     ...req.body,
