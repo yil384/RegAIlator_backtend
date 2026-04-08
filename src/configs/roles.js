@@ -1,5 +1,3 @@
-const { Survey } = require('../models');
-
 const subUserRoles = {
   user: 'user',
   admin: 'admin',

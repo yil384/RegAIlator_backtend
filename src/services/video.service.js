@@ -27,8 +27,8 @@ const createVideo = async (videoBody) => {
  * @returns {Promise<Video>}
  */
 const createVideoFromUpload = async (videoBody) => {
-  if (videoBody.title && (await Video.isTitleTaken(videoBody.title))) {
-    return new ApiError(httpStatus.BAD_REQUEST, 'Video title already taken');
+  if (videoBody.path && (await Video.isPathTaken(videoBody.path))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Video file path already taken');
   }
   return Video.create(videoBody);
 };
@@ -67,8 +67,8 @@ const updateVideoById = async (videoId, updateBody) => {
   if (!video) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Video not found');
   }
-  if (updateBody.name && (await Video.isNameTaken(updateBody.name, videoId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'VideoName already taken');
+  if (updateBody.path && (await Video.isPathTaken(updateBody.path, videoId))) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Video file path already taken');
   }
   if (updateBody.path) {
     // console.log('updateBody.path>>>', updateBody.path);

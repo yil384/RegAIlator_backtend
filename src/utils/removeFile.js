@@ -6,11 +6,7 @@ const removeFile = async (filename) => {
   try {
     const filepath = `./${logPathName}/${filename}`;
 
-    fs.unlinkSync(filepath, function (err) {
-      if (err) {
-        throw err;
-      }
-    });
+    fs.unlinkSync(filepath);
 
     return true;
   } catch (e) {

@@ -49,7 +49,7 @@ const getSuppliersbyId = async (id) => {
 }
 
 const createSupplier = async (id, supplierBody) => {
-  // FIXME: 为了避免前端传入空字符串，将空字符串转换为 null
+  // FIXME: Convert empty string to null to handle frontend edge case
   if (supplierBody.chooseSurvey==='') {
     supplierBody.chooseSurvey = null;
   }
@@ -64,7 +64,7 @@ const createSupplier = async (id, supplierBody) => {
 const createSupplierBatch = async (id, supplierBodies) => {
   const user = await User.findById(id);
   for (let supplierBody of supplierBodies) {
-    // FIXME: 为了避免前端传入空字符串，将空字符串转换为 null
+    // FIXME: Convert empty string to null to handle frontend edge case
     if (supplierBody.chooseSurvey==='') {
       supplierBody.chooseSurvey = null;
     }
@@ -76,23 +76,23 @@ const createSupplierBatch = async (id, supplierBodies) => {
 }
 
 const updateSupplierById = async (userId, supplierId, supplierBody) => {
-  // 验证传入的 userId 和 supplierId
+  // Validate the incoming userId and supplierId
   if (!userId || !supplierId) {
     throw new Error('User ID and Supplier ID are required');
   }
-  // 查找用户
+  // Find the user
   const user = await User.findById(userId);
   if (!user) {
     throw new Error('User not found');
   }
-  // 查找供应商
+  // Find the supplier
   const supplier = user.suppliers.id(supplierId);
   if (!supplier) {
     throw new Error('Supplier not found');
   }
-  // 遍历 supplierBody 中的字段并更新供应商信息
+  // Iterate over fields in supplierBody and update supplier information
   Object.keys(supplierBody).forEach((key) => {
-    // 仅更新在供应商模式中定义的字段，防止未定义字段的意外更新
+    // Only update fields defined in the supplier schema to prevent unexpected updates of undefined fields
     // if (supplier[key] !== undefined) {
     //   supplier[key] = supplierBody[key];
     // }
@@ -101,7 +101,7 @@ const updateSupplierById = async (userId, supplierId, supplierBody) => {
     //     surveyId: supplier.chooseSurvey
     //   }).sortBy('date')[0].tags = supplierBody[key];
     // }
-    // 如果key是tags，那么找出最新的一个surveyId和supplier.chooseSurvey相同的feedback，然后更新tags
+    // If key is 'tags', find the most recent feedback whose surveyId matches supplier.chooseSurvey, then update tags
     if (key === 'tags' || key === 'reply') {
       const feedback = supplier.feedback.filter(f => f.surveyId === supplier.chooseSurvey);
       if (feedback.length > 0) {
@@ -122,7 +122,7 @@ const updateSupplierById = async (userId, supplierId, supplierBody) => {
       }
     }
   });
-  // 保存更改
+  // Save changes
   await user.save();
   console.log('Updated Supplier:', supplier);
   return supplier;
@@ -130,24 +130,24 @@ const updateSupplierById = async (userId, supplierId, supplierBody) => {
 
 const updateSuppliersByIds = async (userId, body) => {
   const  { supplierIds, supplierBody } = body;
-  // 验证传入的 userId 和 supplierId
+  // Validate the incoming userId and supplierIds
   if (!userId || !supplierIds) {
     throw new Error('User ID and Supplier IDs are required');
   }
-  // 查找用户
+  // Find the user
   const user = await User.findById(userId);
   if (!user) {
     throw new Error('User not found');
   }
-  // 查找供应商
+  // Find the suppliers
   supplierIds.forEach(supplierId => {
     const supplier = user.suppliers.id(supplierId);
     if (!supplier) {
       throw new Error('Supplier not found');
     }
-    // 遍历 supplierBody 中的字段并更新供应商信息
+    // Iterate over fields in supplierBody and update supplier information
     Object.keys(supplierBody).forEach((key) => {
-      // // 仅更新在供应商模式中定义的字段，防止未定义字段的意外更新
+      // // Only update fields defined in the supplier schema to prevent unexpected updates of undefined fields
       // if (supplier[key] !== undefined) {
       //   supplier[key] = supplierBody[key];
       // }
@@ -158,7 +158,7 @@ const updateSuppliersByIds = async (userId, body) => {
       }
     });
   });
-  // 保存更改
+  // Save changes
   await user.save();
   return user;
 };
@@ -203,7 +203,7 @@ const updateSurveyById = async (userId, surveyId, surveyBody) => {
       survey[key] = surveyBody[key];
     }
   });
-  // [FIXME] 特殊处理，如果传入的是 add_attachments: formData，则将附件添加到 survey.attachments 中
+  // [FIXME] Special handling: if add_attachments (formData) is provided, append the attachments to survey.attachments
   if (surveyBody.add_attachments) {
     survey.attachments.push(...surveyBody.add_attachments);
   }

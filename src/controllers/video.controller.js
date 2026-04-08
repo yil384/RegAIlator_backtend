@@ -1,6 +1,5 @@
 const httpStatus = require('http-status');
 const multer = require('multer');
-const ffmpeg = require('fluent-ffmpeg');
 const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -9,11 +8,9 @@ const config = require('../configs/config');
 const { removeVideoFile } = require('../utils/removeVideoFile');
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid'); // 用于生成唯一的文件名
+const { v4: uuidv4 } = require('uuid'); // Used to generate unique filenames
 const { spawn } = require('child_process');
-const { title } = require('process');
-const { group } = require('console');
-const mime = require('mime'); // 导入mime模块
+const mime = require('mime'); // Import mime module
 
 const fileStorage = multer.diskStorage({
   destination(req, file, callback) {
@@ -79,14 +76,14 @@ const uploadFiles = catchAsync(async (req, res) => {
           if (req.files && req.files.length) {
               const results = [];
               for (const file of req.files) {
-                  const filePath = path.join(__dirname, '../..', 'uploads', file.filename); // file.filename 已经是唯一名称
+                  const filePath = path.join(__dirname, '../..', 'uploads', file.filename); // file.filename is already a unique name
                   const fileUrl = `/api/uploads/${file.filename}`;
                   
-                  // 如果类型是pdf，调用 Python 脚本进行解析
+                  // If the type is PDF, call the Python script for parsing
                   const type = mime.extension(file.mimetype);
                   console.log(`Attachment content type: ${type}`);
                   // if (type === 'application/pdf' || type === 'pdf') {
-                  //   // 调用 Python 脚本进行解析
+                  //   // Call the Python script for parsing
                   //   const pythonProcess = spawn('python', [path.join(__dirname, '../python/parse_files.py'), filePath]);
 
                   //   let pythonOutput = '';
@@ -107,15 +104,15 @@ const uploadFiles = catchAsync(async (req, res) => {
                   //               result: parsedData,
                   //           });
 
-                  //           // 存储文件信息到数据库
+                  //           // Store file information to the database
                   //           await videoService.createVideo({
-                  //               title: file.originalname, // 保留原始文件名
+                  //               title: file.originalname, // Keep the original filename
                   //               path: fileUrl,
                   //               group: req.body.group,
                   //               accessState: "private",
                   //               addedBy: req.user._id,
                   //               supplier: supplierId,
-                  //               json: parsedData // 如果你想存储解析的数据
+                  //               json: parsedData // If you want to store the parsed data
                   //           });
 
                   //           if (results.length === req.files.length) {
@@ -135,15 +132,15 @@ const uploadFiles = catchAsync(async (req, res) => {
                       file: file.filename,
                       result: parsedData,
                     });
-                    // 存储文件信息到数据库
+                    // Store file information to the database
                     await videoService.createVideo({
-                      title: file.originalname, // 保留原始文件名
+                      title: file.originalname, // Keep the original filename
                       path: fileUrl,
                       group: req.body.group,
                       accessState: "private",
                       addedBy: req.user._id,
                       supplier: supplierId,
-                      json: parsedData // 如果你想存储解析的数据
+                      json: parsedData // If you want to store the parsed data
                     });
                     if (results.length === req.files.length) {
                       res.status(200).json({
@@ -167,79 +164,65 @@ const uploadFiles = catchAsync(async (req, res) => {
 const parseVideos = catchAsync(async (req, res) => {
   const ids = req.body;
   const videos = await videoService.queryVideos({ _id: { $in: ids } }, {});
-  console.log("videos", videos);
   const results = [];
-  for (const video of videos.results) {
-    const filePath = path.join(__dirname, '../..', video.path).replace('/api', ''); // 去掉 '/api'
-    // 根据 filename 的最后面的文件类型
-    const type = path.extname(video.title).slice(1);
-    // console.log(`Attachment content type: ${type} of the path: ${filePath}`);
-    // 如果 json 数据已经存在，则直接返回，不去运行解析
-    if (video.json && Object.keys(video.json).length) {
-      results.push({
-        file: video.title,
-        result: video.json,
-      });
-      if (results.length === videos.results.length) {
-        res.status(200).json({
-          status: true,
-          message: 'Files processed successfully',
-          files: results,
-        });
-      }
-    } else if (type === 'application/pdf' || type === 'pdf') {
-      // 调用 Python 脚本进行解析
-      const pythonProcess = spawn('python', [path.join(__dirname, '../python/parse_files.py'), filePath]);
+  let responseSent = false;
 
-      let pythonOutput = '';
-      pythonProcess.stdout.on('data', (data) => {
-          pythonOutput += data.toString();
+  const sendResponseIfComplete = () => {
+    if (!responseSent && results.length === videos.results.length) {
+      responseSent = true;
+      res.status(200).json({
+        status: true,
+        message: 'Files processed successfully',
+        files: results,
       });
-
-      pythonProcess.stderr.on('data', (data) => {
-          console.error(`stderr: ${data}`);
-      });
-
-      pythonProcess.on('close', async (code) => {
-          if (code === 0) {
-              const parsedData = JSON.parse(pythonOutput);
-              console.log(parsedData);
-
-                // 更新文件信息到数据库
-                await videoService.updateVideoById(video._id, {
-                json: parsedData // 如果你想存储解析的数据
-                });
-                results.push({
-                  file: video.title,
-                  result: parsedData,
-                });
-                if (results.length === videos.results.length) {
-                  res.status(200).json({
-                    status: true,
-                    message: 'Files processed successfully',
-                    files: results,
-                  });
-              }
-          } else {
-              // [TODO] [FIXME] 如果解析失败，应该如何处理？
-              console.error(`Error processing file with Python script: ${video.title}`);
-              res.status(500).send({ error: { message: 'Error processing file with Python script' } });
-          }
-      });
-    } else {
-      results.push({
-        file: video.title,
-        result: {},
-      });
-      if (results.length === videos.results.length) {
-        res.status(200).json({
-          status: true,
-          message: 'Files processed successfully',
-          files: results,
-        });
-      }
     }
-  }
+  };
+
+  const parsePromises = videos.results.map((video) => {
+    return new Promise((resolve) => {
+      const filePath = path.join(__dirname, '../..', video.path).replace('/api', '');
+      const type = path.extname(video.title).slice(1);
+
+      if (video.json && Object.keys(video.json).length) {
+        results.push({ file: video.title, result: video.json });
+        resolve();
+      } else if (type === 'application/pdf' || type === 'pdf') {
+        const pythonProcess = spawn('python', [path.join(__dirname, '../python/parse_files.py'), filePath]);
+        let pythonOutput = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+          pythonOutput += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+          console.error(`stderr: ${data}`);
+        });
+
+        pythonProcess.on('close', async (code) => {
+          try {
+            if (code === 0) {
+              const parsedData = JSON.parse(pythonOutput);
+              await videoService.updateVideoById(video._id, { json: parsedData });
+              results.push({ file: video.title, result: parsedData });
+            } else {
+              console.error(`Error processing file with Python script: ${video.title}`);
+              results.push({ file: video.title, result: {}, error: 'Parse failed' });
+            }
+          } catch (e) {
+            console.error(`Error handling parse result for ${video.title}:`, e);
+            results.push({ file: video.title, result: {}, error: 'Parse error' });
+          }
+          resolve();
+        });
+      } else {
+        results.push({ file: video.title, result: {} });
+        resolve();
+      }
+    });
+  });
+
+  await Promise.all(parsePromises);
+  sendResponseIfComplete();
 });
 
 module.exports = {

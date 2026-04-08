@@ -6,53 +6,53 @@ const { ObjectId } = mongoose.SchemaTypes;
 
 const materialSchema = mongoose.Schema(
   {
-    // 物料名称
+    // Material name
     productName: { type: String, required: true },
 
-    // 物料编号
+    // Material part number
     // productPartNumber: { type: String, required: true, unique: true },
     productPartNumber: { type: String, required: true },
 
-    // 工厂名称
+    // Factory name
     facility: { type: String, default: '' },
 
-    // 原材料名称
+    // Raw material name
     rawMaterialName: { type: String, default: '' },
 
-    // 原材料编号
+    // Raw material part number
     rawMaterialPartNumber: { type: String, default: '' },
 
-    // 功能说明
+    // Function description
     function: { type: String, default: '' },
 
-    // 供应商
+    // Supplier
     supplier: { type: ObjectId, ref: 'Supplier', default: null },
 
-    // 所属的用户
+    // Owning user
     user: { type: ObjectId, ref: 'User', required: true },
 
-    // JSON 格式的额外属性（例如，技术文档、供应链相关等）
+    // Additional properties in JSON format (e.g., technical documents, supply chain related, etc.)
     json: { type: Object, default: {} },
 
-    createdAt: { type: Date, default: Date.now }, // 调查的创建时间
-    updatedAt: { type: Date }, // 调查的更新时间
+    createdAt: { type: Date, default: Date.now }, // Record creation time
+    updatedAt: { type: Date }, // Record update time
   },
   {    
-    _id: true, // 使用默认的 _id 字段
-    timestamps: true, // 自动生成创建和更新时间
+    _id: true, // Use the default _id field
+    timestamps: true, // Automatically generate created and updated timestamps
   }
 );
 
-// 添加插件：将Mongoose模型转换为JSON
+// Add plugin: convert Mongoose model to JSON
 materialSchema.plugin(toJSON);
 
-// 添加分页插件
+// Add pagination plugin
 materialSchema.plugin(paginate);
 
 // /**
-//  * 检查物料编号是否已存在
-//  * @param productPartNumber 物料编号
-//  * @param {ObjectId} [excludeMaterialId] - 排除某个物料的ID（用于编辑场景）
+//  * Check if the material part number already exists
+//  * @param productPartNumber Material part number
+//  * @param {ObjectId} [excludeMaterialId] - Exclude a specific material's ID (used for edit scenarios)
 //  * @returns {Promise<boolean>}
 //  */
 // materialSchema.statics.isPartNumberTaken = async function (productPartNumber, excludeMaterialId) {

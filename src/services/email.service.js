@@ -10,7 +10,7 @@ if (config.env !== 'test') {
     .then(() => logger.info('Connected to email server'))
     .catch((error) => {
       logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env');
-      logger.error('Error details:', error); // 输出错误详情
+      logger.error('Error details:', error); // Output error details
     });
 }
 
@@ -68,7 +68,6 @@ const sendMentionEmail = async (to, subject, html, attachments = null, cc = null
 
 const sendReplyEmail = async (to, subject, text, cc = null) => {
   const msg = { from: config.email.smtp.auth.user, to, subject, text, cc };
-  console.log('msg: ', msg);
   await transport.sendMail(msg);
 };
 

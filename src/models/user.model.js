@@ -9,40 +9,40 @@ const { ObjectId } = mongoose.SchemaTypes;
 // Define attachment sub-schema
 const attachmentSchema = mongoose.Schema(
   {
-    filename: { type: String, required: false }, // 附件的文件名（可以不存在）
-    contentType: { type: String, required: true }, // 附件的类型
-    size: { type: Number, required: true }, // 附件的大小
-    content: { type: String, required: true }, // 附件的内容
+    filename: { type: String, required: false }, // Attachment filename (optional)
+    contentType: { type: String, required: true }, // Attachment MIME type
+    size: { type: Number, required: true }, // Attachment size
+    content: { type: String, required: true }, // Attachment content
   },
   {
     _id: true,
-    timestamps: true, // 自动生成createdAt和updatedAt字段
+    timestamps: true, // Auto-generate createdAt and updatedAt fields
   }
 );
 
 // Define emailReply sub-schema
 const emailReplySchema = mongoose.Schema(
   {
-    subject: { type: String, required: true }, // 邮件主题
-    content: { type: String, required: true }, // 邮件内容
-    from: { type: String, required: true }, // 发件人邮箱
-    to: { type: String, required: true }, // 收件人邮箱
-    date: { type: Date, required: true }, // 邮件发送日期
-    attachments: { type: [attachmentSchema], default: [] }, // 邮件的附件（可以是多个）
-    surveyId: { type: ObjectId, ref: 'Survey', default: null }, // 邮件关联的调查
-    tags: { type: [String], default: [] }, // 邮件的标签
-    reply: { 
+    subject: { type: String, required: true }, // Email subject
+    content: { type: String, required: true }, // Email body
+    from: { type: String, required: true }, // Sender email address
+    to: { type: String, required: true }, // Recipient email address
+    date: { type: Date, required: true }, // Email send date
+    attachments: { type: [attachmentSchema], default: [] }, // Email attachments (can be multiple)
+    surveyId: { type: ObjectId, default: null },
+    tags: { type: [String], default: [] }, // Email tags
+    reply: {
       type: {
-        subject: { type: String, required: true }, // 回复的主题
-        content: { type: String, required: true }, // 回复的内容
-      }, 
-      default: null, 
-      required: false 
-    }, // 准备回复的内容（AI生成，可以为空）
+        subject: { type: String, required: true }, // Reply subject
+        content: { type: String, required: true }, // Reply content
+      },
+      default: null,
+      required: false
+    }, // Prepared reply content (AI-generated, can be null)
   },
   {
     _id: true,
-    timestamps: true, // 自动生成createdAt和updatedAt字段
+    timestamps: true, // Auto-generate createdAt and updatedAt fields
   }
 );
 
@@ -63,7 +63,7 @@ const supplierSchema = mongoose.Schema(
     supplierName: { type: String, required: true }, // Supplier name
     contact: { type: String, trim: true },          // Contact
     rawMaterials: { type: [rawMaterialSchema], default: [] }, // List of raw materials
-    chooseSurvey: { type: ObjectId, ref: 'Survey', default: null }, // Choose Survey (list of ObjectIds)
+    chooseSurvey: { type: ObjectId, default: null },
     status: { type: String },                       // Status
     feedback: { type: [emailReplySchema], default: [] }, // List of email replies (emailReply)
     supplierDocuments: { type: String },            // Supplier Documents
@@ -78,20 +78,20 @@ const supplierSchema = mongoose.Schema(
 
 const surveySchema = mongoose.Schema(
   {
-    title: { type: String, required: true }, // 调查的标题
-    // name: { type: String, required: true }, // 调查的名字
-    // content: { type: String, required: true }, // 调查的内容
-    // description: { type: String }, // 调查的描述
-    attachments: { type: [attachmentSchema], default: [] }, // 调查的附件
-    revision: { type: Number, default: 0 }, // 调查的版本号
-    html: { type: String }, // 调查的HTML
-    json: { type: String }, // 调查的JSON
-    createdAt: { type: Date, default: Date.now }, // 调查的创建时间
-    updatedAt: { type: Date }, // 调查的更新时间
+    title: { type: String, required: true }, // Survey title
+    // name: { type: String, required: true }, // Survey name
+    // content: { type: String, required: true }, // Survey content
+    // description: { type: String }, // Survey description
+    attachments: { type: [attachmentSchema], default: [] }, // Survey attachments
+    revision: { type: Number, default: 0 }, // Survey revision number
+    html: { type: String }, // Survey HTML
+    json: { type: String }, // Survey JSON
+    createdAt: { type: Date, default: Date.now }, // Survey creation time
+    updatedAt: { type: Date }, // Survey last updated time
   },
   {
     _id: true,
-    timestamps: true, // 自动生成createdAt和updatedAt字段
+    timestamps: true, // Auto-generate createdAt and updatedAt fields
   }
 );
 

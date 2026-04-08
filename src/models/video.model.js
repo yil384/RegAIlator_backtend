@@ -10,7 +10,7 @@ const videoSchema = mongoose.Schema(
     path: { type: String, required: true },
     accessState: { type: String, enum: constants.accessState, default: 'private' },
     addedBy: { type: ObjectId, ref: 'User', required: true },
-    // json格式的数据
+    // JSON-formatted data
     json: { type: Object, default: {} },
     supplier: { type: ObjectId, ref: 'Supplier', default: null },
   },

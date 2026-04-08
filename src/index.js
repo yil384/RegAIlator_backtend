@@ -1,46 +1,64 @@
 const mongoose = require('mongoose');
-const http = require('http'); // 引入 http 模块用于创建服务器
-const socketIo = require('socket.io'); // 引入 socket.io 用于 WebSocket 实时通信
-const app = require('./app'); // 你的 Express 应用
+const http = require('http');
+const socketIo = require('socket.io');
+const app = require('./app');
 const config = require('./configs/config');
 const logger = require('./configs/logger');
-const emailListener = require('./services/emailListener.service'); // 引入邮件监听器
+const emailListener = require('./services/emailListener.service');
 
 let server;
 
-// 创建 HTTP 服务器，将 Express 应用绑定到 HTTP 服务器
+// Create HTTP server bound to Express app
 const httpServer = http.createServer(app);
 
-// 初始化 socket.io 并与 HTTP 服务器关联
+// Initialize Socket.io with CORS support
 const io = socketIo(httpServer, {
   cors: {
-    origin: '*', // 设置允许的来源
-    methods: ['GET', 'POST']
-  }
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
 });
 
-io.on('connection', async (socket) => {
-  console.log('New client connected');
+io.on('connection', (socket) => {
+  logger.info('New client connected');
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    logger.info('Client disconnected');
   });
 });
 
-mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
-  console.log('mongoose url', config.mongoose.url);
-  console.log('mongoose options', config.mongoose.options);
-  logger.info('Connected to MongoDB');
+// Connect to MongoDB then start the server
+mongoose
+  .connect(config.mongoose.url, config.mongoose.options)
+  .then(() => {
+    logger.info('Connected to MongoDB');
 
-  // 启动 HTTP 服务器并监听指定的端口
-  server = httpServer.listen(config.port, '0.0.0.0', () => {
-    logger.info(`Listening to port ${config.port}`);
+    server = httpServer.listen(config.port, '0.0.0.0', () => {
+      logger.info(`Listening to port ${config.port}`);
+    });
+
+    // Handle port-in-use error gracefully instead of crash-looping
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        logger.error(`Port ${config.port} is already in use. Retrying in 3 seconds...`);
+        setTimeout(() => {
+          server.close();
+          server.listen(config.port, '0.0.0.0');
+        }, 3000);
+      } else {
+        logger.error(`Server error: ${err.message}`);
+        process.exit(1);
+      }
+    });
+
+    // Start email listener with WebSocket instance for real-time push
+    emailListener(io);
+  })
+  .catch((err) => {
+    logger.error(`Failed to connect to MongoDB: ${err.message}`);
+    process.exit(1);
   });
 
-  // 启动邮件监听，并将 WebSocket 实例传递给它
-  emailListener(io); // 将 io 传递给 emailListener 以便推送消息给前端
-});
-
-// 处理退出信号
+// Graceful shutdown
 const exitHandler = () => {
   if (server) {
     server.close(() => {
@@ -52,7 +70,6 @@ const exitHandler = () => {
   }
 };
 
-// 处理未捕获的异常和未处理的 promise 拒绝
 const unexpectedErrorHandler = (error) => {
   logger.error(error);
   exitHandler();
@@ -64,6 +81,11 @@ process.on('unhandledRejection', unexpectedErrorHandler);
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received');
   if (server) {
-    server.close();
+    server.close(() => {
+      logger.info('Server closed');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
   }
 });

@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const path = require('path');
 const catchAsync = require('../utils/catchAsync');
+const ApiError = require('../utils/ApiError');
 const { authService, userService, tokenService, emailService, materialService } = require('../services');
 const pick = require('../utils/pick');
 
@@ -66,12 +67,23 @@ const sendMentionEmail = catchAsync(async (req, res) => {
     );
   } else {
     const survey = await user.surveys.id(req.body.survey._id);
-    const attachments = (survey.attachments || []).map((attachment) => ({
-      filename: attachment.filename,
-      size: attachment.size,
-      contentType: attachment.contentType,
-      path: path.join(__dirname, '../..', attachment.content.replace('/api/uploads/', 'uploads/')),
-    }));
+    if (!survey) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Survey not found');
+    }
+    const attachments = (survey.attachments || []).map((attachment) => {
+      const relativePath = attachment.content.replace('/api/uploads/', 'uploads/');
+      const fullPath = path.join(__dirname, '../..', relativePath);
+      const uploadsDir = path.resolve(__dirname, '../../uploads');
+      if (!path.resolve(fullPath).startsWith(uploadsDir)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid attachment path');
+      }
+      return {
+        filename: attachment.filename,
+        size: attachment.size,
+        contentType: attachment.contentType,
+        path: fullPath,
+      };
+    });
 
     const { rawMaterials } = req.body.survey;
     const finalAttachments = [
@@ -131,16 +143,16 @@ const getMySurveys = catchAsync(async (req, res) => {
   res.send(surveys);
 });
 
-const createSurvey = async (req, res) => {
+const createSurvey = catchAsync(async (req, res) => {
   const surveyData = {
     ...req.body,
-    attachments: [], // 初始化附件数组
+    attachments: [], // Initialize attachments array
   };
 
-  // 处理上传的文件
+  // Process uploaded files
   if (req.files) {
     surveyData.attachments = req.files.map((file) => ({
-      content: `/api/uploads/${file.filename}`, // 根据您的存储方式调整
+      content: `/api/uploads/${file.filename}`, // Adjust based on your storage method
       filename: file.originalname,
       size: file.size,
       contentType: file.mimetype,
@@ -150,16 +162,16 @@ const createSurvey = async (req, res) => {
   const user = await userService.createSurvey(req.user.id, surveyData);
   const { surveys } = user;
   res.send(surveys);
-};
+});
 
 const updateSurveyAttachments = catchAsync(async (req, res) => {
   const surveyData = {
-    add_attachments: [], // 初始化附件数组
+    add_attachments: [], // Initialize attachments array
   };
-  // 处理上传的文件
+  // Process uploaded files
   if (req.files) {
     surveyData.add_attachments = req.files.map((file) => ({
-      content: `/api/uploads/${file.filename}`, // 根据您的存储方式调整
+      content: `/api/uploads/${file.filename}`, // Adjust based on your storage method
       filename: file.originalname,
       size: file.size,
       contentType: file.mimetype,

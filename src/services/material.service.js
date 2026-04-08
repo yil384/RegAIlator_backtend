@@ -31,7 +31,7 @@ const updateBillOfMaterialById = async (userId, materialId, materialBody) => {
     if (!material) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Material not found');
     }
-    if (material.user != userId) {
+    if (material.user.toString() !== userId.toString()) {
         throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
     }
     Object.assign(material, materialBody);
@@ -40,15 +40,13 @@ const updateBillOfMaterialById = async (userId, materialId, materialBody) => {
 }
 
 const deleteBillOfMaterialsByIds = async (userId, materialIds) => {
-    console.log('materialIds: ', materialIds);
     const materials = await Material.find({ _id: { $in: materialIds } });
     for (let i = 0; i < materials.length; i++) {
-        if (materials[i].user != userId) {
+        if (materials[i].user.toString() !== userId.toString()) {
             throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
         }
     }
     await Material.deleteMany({ _id: { $in: materialIds } });
-    console.log('materials: ', materials);
     return materials;
 }
 

@@ -57,11 +57,10 @@ const updateWatchLogById = async (watchLogId, updateBody) => {
  */
 const deleteWatchLogById = async (watchLogId) => {
   const watchLog = await getWatchLogById(watchLogId);
-  await removeFile(watchLog.recordFileName);
-
   if (!watchLog) {
     throw new ApiError(httpStatus.NOT_FOUND, 'WatchLog not found');
   }
+  await removeFile(watchLog.recordFileName);
   await watchLog.remove();
 
   return watchLog;
