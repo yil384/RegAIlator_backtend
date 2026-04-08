@@ -12,9 +12,6 @@ const { removeVideoFile } = require('../utils/removeVideoFile');
  * @returns {Promise<Video>}
  */
 const createVideo = async (videoBody) => {
-  // if (videoBody.path && (await Video.isPathTaken(videoBody.path))) {
-  //   return new ApiError(httpStatus.BAD_REQUEST, 'File path already taken');
-  // }
   if (videoBody.group === '') {
     delete videoBody.group;
   }
@@ -71,13 +68,11 @@ const updateVideoById = async (videoId, updateBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Video file path already taken');
   }
   if (updateBody.path) {
-    // console.log('updateBody.path>>>', updateBody.path);
     const splitPath = updateBody.path.split('/');
     const splitFileName = splitPath[splitPath.length - 1].split('.');
     const isConvertedPath = splitPath[splitPath.length - 2] === 'converted';
     const fileExtension = splitFileName[splitFileName.length - 1];
     const fileName = splitFileName[splitFileName.length - 2];
-    // console.log({ isConvertedPath, fileExtension, fileName });
     if (fileName !== updateBody.title) {
       let filePath = `/uploads`;
       if (isConvertedPath) {
@@ -108,7 +103,6 @@ const deleteVideoById = async (videoId) => {
   const splitPath = video.path.split('/');
   const isConvertedPath = splitPath[splitPath.length - 2] === 'converted';
   const fileName = splitPath[splitPath.length - 1];
-  // console.log({ isConvertedPath, fileName });
   let filePath = `./uploads/${fileName}`;
   if (isConvertedPath) {
     filePath = `./uploads/converted/${fileName}`;

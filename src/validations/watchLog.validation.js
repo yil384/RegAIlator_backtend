@@ -3,12 +3,9 @@ const { objectId } = require('./custom.validation');
 
 const createWatchLog = {
   body: Joi.object().keys({
-    // userId: Joi.custom(objectId).required(),
     videoGroupId: Joi.custom(objectId),
     progressStatus: Joi.object(),
     recordings: Joi.object().required(),
-    // recordFileName: Joi.string().required(),
-    // recordFilePath: Joi.string().required(),
   }),
 };
 
@@ -36,7 +33,6 @@ const updateWatchLog = {
   }),
   body: Joi.object()
     .keys({
-      // userId: Joi.custom(objectId),
       videoGroupId: Joi.custom(objectId),
       progressStatus: Joi.object(),
       recordFileName: Joi.string(),

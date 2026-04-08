@@ -12,7 +12,8 @@ const videoSchema = mongoose.Schema(
     addedBy: { type: ObjectId, ref: 'User', required: true },
     // JSON-formatted data
     json: { type: Object, default: {} },
-    supplier: { type: ObjectId, ref: 'Supplier', default: null },
+    // References a supplier subdocument _id within a User document (not a separate collection)
+    supplier: { type: ObjectId, default: null },
   },
   {
     _id: true,

@@ -139,12 +139,13 @@ const findMatchingUsers = async (email, uniqueContentEmails) => {
     if (user) return [user];
   }
 
-  // Check 2: match by supplier contact matching sender
-  const allUsers = await User.find();
-  const matchedBySender = allUsers.filter((user) =>
-    user.suppliers.some((supplier) => supplier.contact?.toLowerCase() === email.from?.toLowerCase())
-  );
-  if (matchedBySender.length > 0) return matchedBySender;
+  // Check 2: match by supplier contact matching sender (uses index on suppliers.contact)
+  if (email.from) {
+    const matchedBySender = await User.find({
+      'suppliers.contact': { $regex: new RegExp(`^${email.from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+    });
+    if (matchedBySender.length > 0) return matchedBySender;
+  }
 
   // Check 3: match by supplier contact in email content
   if (uniqueContentEmails.length > 0) {

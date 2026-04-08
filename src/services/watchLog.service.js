@@ -21,7 +21,6 @@ const createWatchLog = async (watchLogBody) => {
  * @returns {Promise<QueryResult>}
  */
 const queryWatchLogs = async (filter, options) => {
-  // return WatchLog.paginate(filter, options);
   return WatchLog.paginate(filter, { ...options, populate: 'userId,videoGroupId' });
 };
 

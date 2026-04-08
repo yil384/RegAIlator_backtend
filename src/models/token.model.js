@@ -33,6 +33,10 @@ const tokenSchema = mongoose.Schema(
   }
 );
 
+// Indexes for query performance
+tokenSchema.index({ user: 1, type: 1 });
+tokenSchema.index({ expires: 1 }, { expireAfterSeconds: 0 }); // Auto-delete expired tokens
+
 // add plugin that converts mongoose to json
 tokenSchema.plugin(toJSON);
 

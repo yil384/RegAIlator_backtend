@@ -76,7 +76,7 @@ const getSuppliersbyId = async (id) => {
  * @returns {Promise<User>} The updated user document (with the new supplier appended)
  */
 const createSupplier = async (id, supplierBody) => {
-  // FIXME: Convert empty string to null to handle frontend edge case
+  // Normalize empty string to null (frontend sends '' when no survey is selected)
   if (supplierBody.chooseSurvey==='') {
     supplierBody.chooseSurvey = null;
   }
@@ -98,7 +98,7 @@ const createSupplier = async (id, supplierBody) => {
 const createSupplierBatch = async (id, supplierBodies) => {
   const user = await User.findById(id);
   for (let supplierBody of supplierBodies) {
-    // FIXME: Convert empty string to null to handle frontend edge case
+    // Normalize empty string to null (frontend sends '' when no survey is selected)
     if (supplierBody.chooseSurvey==='') {
       supplierBody.chooseSurvey = null;
     }
@@ -143,16 +143,7 @@ const updateSupplierById = async (userId, supplierId, supplierBody) => {
   }
   // Iterate over fields in supplierBody and update supplier information
   Object.keys(supplierBody).forEach((key) => {
-    // Only update fields defined in the supplier schema to prevent unexpected updates of undefined fields
-    // if (supplier[key] !== undefined) {
-    //   supplier[key] = supplierBody[key];
-    // }
-    // if (key === 'tags') {
-    //   supplier.feedback.findOne({
-    //     surveyId: supplier.chooseSurvey
-    //   }).sortBy('date')[0].tags = supplierBody[key];
-    // }
-    // If key is 'tags', find the most recent feedback whose surveyId matches supplier.chooseSurvey, then update tags
+    // Tags and reply live on the most recent feedback entry, not on the supplier itself
     if (key === 'tags' || key === 'reply') {
       const feedback = supplier.feedback.filter(f => f.surveyId === supplier.chooseSurvey);
       if (feedback.length > 0) {
@@ -166,16 +157,10 @@ const updateSupplierById = async (userId, supplierId, supplierBody) => {
         }
       }
     } else {
-      try {
-        supplier[key] = supplierBody[key];
-      } catch (error) {
-        console.log('updateSupplierById Error:', error);
-      }
+      supplier[key] = supplierBody[key];
     }
   });
-  // Save changes
   await user.save();
-  console.log('Updated Supplier:', supplier);
   return supplier;
 };
 
@@ -206,17 +191,8 @@ const updateSuppliersByIds = async (userId, body) => {
     if (!supplier) {
       throw new Error('Supplier not found');
     }
-    // Iterate over fields in supplierBody and update supplier information
     Object.keys(supplierBody).forEach((key) => {
-      // // Only update fields defined in the supplier schema to prevent unexpected updates of undefined fields
-      // if (supplier[key] !== undefined) {
-      //   supplier[key] = supplierBody[key];
-      // }
-      try {
-        supplier[key] = supplierBody[key];
-      } catch (error) {
-        console.log('updateSuppliersByIds Error:', error);
-      }
+      supplier[key] = supplierBody[key];
     });
   });
   // Save changes
@@ -293,12 +269,11 @@ const updateSurveyById = async (userId, surveyId, surveyBody) => {
       survey[key] = surveyBody[key];
     }
   });
-  // [FIXME] Special handling: if add_attachments (formData) is provided, append the attachments to survey.attachments
+  // Append new attachments to existing list (for incremental upload via formData)
   if (surveyBody.add_attachments) {
     survey.attachments.push(...surveyBody.add_attachments);
   }
   await user.save();
-  console.log('Updated Survey:', survey);
   return survey;
 }
 
@@ -324,7 +299,6 @@ const deleteSurveysById = async (id, surveyIds) => {
  */
 const getUserByEmailOrUsername = async (value) => {
   return User.findOne({ $or: [{ email: value }, { username: value }] });
-  // return User.findOne({ email });
 };
 
 /**

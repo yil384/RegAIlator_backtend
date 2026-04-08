@@ -25,8 +25,8 @@ const materialSchema = mongoose.Schema(
     // Function description
     function: { type: String, default: '' },
 
-    // Supplier
-    supplier: { type: ObjectId, ref: 'Supplier', default: null },
+    // References a supplier subdocument _id within a User document (not a separate collection)
+    supplier: { type: ObjectId, default: null },
 
     // Owning user
     user: { type: ObjectId, ref: 'User', required: true },
@@ -49,16 +49,9 @@ materialSchema.plugin(toJSON);
 // Add pagination plugin
 materialSchema.plugin(paginate);
 
-// /**
-//  * Check if the material part number already exists
-//  * @param productPartNumber Material part number
-//  * @param {ObjectId} [excludeMaterialId] - Exclude a specific material's ID (used for edit scenarios)
-//  * @returns {Promise<boolean>}
-//  */
-// materialSchema.statics.isPartNumberTaken = async function (productPartNumber, excludeMaterialId) {
-//   const material = await this.findOne({ productPartNumber, _id: { $ne: excludeMaterialId } });
-//   return !!material;
-// };
+// Indexes for query performance
+materialSchema.index({ user: 1 });
+materialSchema.index({ supplier: 1, user: 1 });
 
 /**
  * @typedef Material
