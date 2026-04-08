@@ -25,3 +25,6 @@ Thumbs.db
 # Test / debug scripts
 test_imap.js
 output*.json
+
+# Uploads (user data, not code)
+uploads/
