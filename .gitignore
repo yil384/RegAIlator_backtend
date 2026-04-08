@@ -9,7 +9,19 @@ src/python/include/openai_key.in
 *.html
 *.xlsx
 *.csv
-out*.env
+
+# Logs
+out*
+*.log
+previous_log/
+
+# Environment & secrets
+.env
+
+# OS files
 .DS_Store
-recipients.log
+Thumbs.db
+
+# Test / debug scripts
 test_imap.js
+output*.json
