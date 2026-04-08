@@ -63,9 +63,8 @@ app.use(mongoSanitize());
 app.use(compression());
 
 // --- 5. CORS ---
-// Restrict origins in production to the configured frontend URL.
 const corsOptions = {
-  origin: config.env === 'production' ? config.web_host : '*',
+  origin: config.web_host || '*',
   credentials: true,
 };
 app.use(cors(corsOptions));
