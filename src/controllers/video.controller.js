@@ -67,6 +67,11 @@ const createVideo = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(videoGroup);
 });
 
+/**
+ * Query Video records with optional filters (name, path, group, addedBy, accessState)
+ * and pagination (sortBy, limit, page).
+ * @route GET /videos
+ */
 const getVideos = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'path', 'group', 'addedBy', 'accessState']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
@@ -74,6 +79,10 @@ const getVideos = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+/**
+ * Get a single Video record by ID.
+ * @route GET /videos/:videoId
+ */
 const getVideo = catchAsync(async (req, res) => {
   const user = await videoService.getVideoById(req.params.videoId);
   if (!user) {
@@ -82,16 +91,36 @@ const getVideo = catchAsync(async (req, res) => {
   res.send(user);
 });
 
+/**
+ * Update a Video record's fields by ID.
+ * @route PATCH /videos/:videoId
+ */
 const updateVideo = catchAsync(async (req, res) => {
   const user = await videoService.updateVideoById(req.params.videoId, req.body);
   res.send(user);
 });
 
+/**
+ * Delete a Video record by ID.
+ * @route DELETE /videos/:videoId
+ */
 const deleteVideo = catchAsync(async (req, res) => {
   await videoService.deleteVideoById(req.params.videoId);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+/**
+ * Upload one or more files for a specific supplier, saving each to disk and
+ * creating a Video record in the database. The multer middleware is invoked
+ * manually (not as route-level middleware) so we can handle its errors within
+ * this function's try/catch. Each uploaded file gets a UUID filename and is
+ * associated with the supplier via the :supplierId route parameter.
+ *
+ * Note: The commented-out PDF parsing block was disabled in favor of the
+ * separate `parseVideos` endpoint, which allows on-demand parsing.
+ *
+ * @route POST /videos/upload/:supplierId
+ */
 const uploadFiles = catchAsync(async (req, res) => {
   const supplierId = req.params.supplierId;
   return uploadVideos(req, res, async function (err) {
@@ -106,81 +135,25 @@ const uploadFiles = catchAsync(async (req, res) => {
           if (req.files && req.files.length) {
               const results = [];
               for (const file of req.files) {
-                  const filePath = path.join(__dirname, '../..', 'uploads', file.filename); // file.filename is already a unique name
                   const fileUrl = `/api/uploads/${file.filename}`;
-                  
-                  // If the type is PDF, call the Python script for parsing
-                  const type = mime.extension(file.mimetype);
-                  console.log(`Attachment content type: ${type}`);
-                  // if (type === 'application/pdf' || type === 'pdf') {
-                  //   // Call the Python script for parsing
-                  //   const pythonProcess = spawn('python', [path.join(__dirname, '../python/parse_files.py'), filePath]);
 
-                  //   let pythonOutput = '';
-                  //   pythonProcess.stdout.on('data', (data) => {
-                  //       pythonOutput += data.toString();
-                  //   });
-
-                  //   pythonProcess.stderr.on('data', (data) => {
-                  //       console.error(`stderr: ${data}`);
-                  //   });
-
-                  //   pythonProcess.on('close', async (code) => {
-                  //       if (code === 0) {
-                  //           const parsedData = JSON.parse(pythonOutput);
-                  //           console.log(parsedData);
-                  //           results.push({
-                  //               file: file.filename,
-                  //               result: parsedData,
-                  //           });
-
-                  //           // Store file information to the database
-                  //           await videoService.createVideo({
-                  //               title: file.originalname, // Keep the original filename
-                  //               path: fileUrl,
-                  //               group: req.body.group,
-                  //               accessState: "private",
-                  //               addedBy: req.user._id,
-                  //               supplier: supplierId,
-                  //               json: parsedData // If you want to store the parsed data
-                  //           });
-
-                  //           if (results.length === req.files.length) {
-                  //               res.status(200).json({
-                  //                   status: true,
-                  //                   message: 'Files processed successfully',
-                  //                   files: results,
-                  //               });
-                  //           }
-                  //       } else {
-                  //           res.status(500).send({ error: { message: 'Error processing file with Python script' } });
-                  //       }
-                  //   });
-                  // } else {
-                    const parsedData = {};
-                    results.push({
-                      file: file.filename,
-                      result: parsedData,
-                    });
-                    // Store file information to the database
-                    await videoService.createVideo({
-                      title: file.originalname, // Keep the original filename
-                      path: fileUrl,
-                      group: req.body.group,
-                      accessState: "private",
-                      addedBy: req.user._id,
-                      supplier: supplierId,
-                      json: parsedData // If you want to store the parsed data
-                    });
-                    if (results.length === req.files.length) {
-                      res.status(200).json({
-                        status: true,
-                        message: 'Files processed successfully',
-                        files: results,
-                      });
-                    }
-                  // }
+                  // Store file record; actual PDF parsing is done later via the parseVideos endpoint
+                  await videoService.createVideo({
+                    title: file.originalname,
+                    path: fileUrl,
+                    group: req.body.group,
+                    accessState: "private",
+                    addedBy: req.user._id,
+                    supplier: supplierId,
+                    json: {},
+                  });
+                  results.push({ file: file.filename, result: {} });
               }
+              res.status(200).json({
+                status: true,
+                message: 'Files processed successfully',
+                files: results,
+              });
           } else {
               res.status(400).send({ message: 'No files uploaded' });
           }
@@ -191,6 +164,16 @@ const uploadFiles = catchAsync(async (req, res) => {
   });
 });
 
+/**
+ * Parse one or more uploaded files by their Video record IDs.
+ * For each video:
+ *  - If `video.json` already has data, return the cached result (skip re-parsing).
+ *  - If the file is a PDF, spawn `parse_files.py` to extract structured data,
+ *    then persist the result back to `video.json` for future cache hits.
+ *  - For non-PDF files, return an empty result object.
+ * All files are processed in parallel via Promise.all.
+ * @route POST /videos/parse
+ */
 const parseVideos = catchAsync(async (req, res) => {
   const ids = req.body;
   const videos = await videoService.queryVideos({ _id: { $in: ids } }, {});
